@@ -36,7 +36,4 @@ async function getSongData(trackId) {
     const track = await fetchTrack(trackId, token);
     return track;
 }
-
-   
-
 module.exports = { getSongData };

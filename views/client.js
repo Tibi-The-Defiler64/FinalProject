@@ -1,13 +1,19 @@
-function downloadFile(uri, name) {
+
+function downloadFile(uri, songData) {
     const link = document.createElement("a");
     link.target = "_blank";
-    link.download = name;
+    link.download = songData["songName"];
     link.href = uri;
-
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     delete link;
+}
+
+async function fetchSongData (uri) {
+    let data = await fetch(uri).then(response => response.json());
+    return data;
+        //downloadFile("/download/"+res,res["songName"]);
 }
 
 const LINK_TYPES = {
@@ -23,8 +29,9 @@ const LINK_TYPES = {
         regex: /^https:\/\/open\.spotify\.com\/playlist\/(?<id>\w{22})/,
         endpoint: "playlist"
     }
+    
 };
-
+  
 
 const getYoutubeLinks = async (spotifyLink) => {
     const type = Object.values(LINK_TYPES).find(({ regex }) => regex.test(spotifyLink));
@@ -43,36 +50,79 @@ const getYoutubeLinks = async (spotifyLink) => {
         return null;
     }
 
-    const x = await response.json();
-    console.log(x);
-    return x;
+    return await response.json();
+  
 }
-const gumb = document.getElementById("gumb");
+const submitLinkBtn = document.getElementById("submitLink");
+const textInput = document.getElementById("spotifyLink");
+const clearLinkBtn = document.getElementById("clearLink");
+const homePage = document.getElementById("homePage");
+const homePageElements = document.getElementById("homePage").getElementsByTagName("*");
+const aboutPopUp = document.getElementById("aboutPopUp");
+const aboutBtn = document.getElementById("aboutBtn");
 
-gumb.addEventListener("click", async event => {
+
+
+homePage.addEventListener("click",(event)=>{
+        if(event.target !== aboutPopUp && !aboutPopUp.contains(event.target) && event.target !== aboutBtn && (aboutPopUp.style.display === "flex")) {
+            closeAbout();
+        }
+});
+
+function clearInput(){
+    document.getElementById("spotifyLink").value = "";
+    clearLinkBtn.style.display = "none";
+    submitLinkBtn.style.display = "none";
+}
+
+function activateAboutPopUp() {
+    aboutPopUp.style.display = "flex";
+    homePage.style.filter = "blur(10px)"
+    for(let element of homePageElements){
+        element.style.pointerEvents = "none";
+    }
+}
+
+function closeAbout() {
+    aboutPopUp.style.display = "none";
+    homePage.style.filter = "none"
+    for(let element of homePageElements) {
+        element.style.pointerEvents = "auto";
+    }
+}
+
+
+textInput.addEventListener("input", (event)=>{
+    const currentValue = event.target.value;
+    const regex = /(https:\/\/)/
+    if(regex.test(currentValue)){
+        submitLinkBtn.style.display = "block";
+    }
+    else{
+        submitLinkBtn.style.display = "none";
+    }
+    if(currentValue!=""){
+        clearLinkBtn.style.display = "block";
+    }else{
+        clearLinkBtn.style.display = "none";
+    }
+
+
+});
+
+submitLinkBtn.addEventListener("click", async event => {
     event.preventDefault();
     const spotifyLink = document.getElementById("spotifyLink").value;
-    getYoutubeLinks(spotifyLink).then(links =>{
+    getYoutubeLinks(spotifyLink).then(links => {
         if(links === null){
             alert('Invalid link');
             return;
         }
-        links.forEach(trackId => {
-            downloadFile("/download/"+trackId,"test.mp3");    
+        links.forEach(async (trackId) => {
+            let sngData = await fetchSongData("/getName/"+trackId);
+            let sngDataJson = JSON.stringify(sngData);
+            downloadFile(`/download/data?json=${encodeURIComponent(sngDataJson)}`,sngData)
         });
     });
 
 })
-
-
-
-/*gumb.addEventListener("click", event => {
-    event.preventDefault();
-    //getYoutubeLinks();
-
-    const spotifyLink = document.getElementById("spotifyLink").value;
-    const regex = /\/track\/(.+)/;
-    const match = spotifyLink.match(regex);
-    const trackId = match[1];
-    downloadFile("/click/" + trackId, "test.mp3");
-});*/

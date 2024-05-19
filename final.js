@@ -57,14 +57,31 @@ app.get("/song/:trackId",async(req, res) =>{
     res.json([trackId]);
 })
 
-app.get("/download/:trackId", async (req, res) => {
+app.get("/getName/:trackId",async (req, res) => {
     const { trackId } = req.params;
     const songData = await getSongData(trackId);
-    const url = await searchSong(songData.name, songData.artists[0].name, songData.duration_ms);
+    const artistList = [];
+    songData.artists.forEach(artistData => {
+        artistList.push(artistData.name);
+    });
+    console.log(artistList);
+    res.json({"songName":songData.name,"songArtists":artistList,"songDuration":songData.duration_ms})
+    
+});
+
+
+app.get("/download/data",async (req,res) => {
+    const songData = req.query.json;
+    const songDataJson = JSON.parse(songData);
+    const url = await searchSong(songDataJson["songName"], songDataJson["songArtists"], songDataJson["songDuration"]);
     console.log("Download: " + url);
+    console.log(songDataJson["songName"]);
+    console.log(songDataJson["songArtists"]);
+    
     const stream = downloadFromYoutube(url);
     stream.pipe(res);
 });
-
 app.listen(port);
+process.on('uncaughtException', console.error)
+
 console.log("Server started at http://localhost:" + port);
