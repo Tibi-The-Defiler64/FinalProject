@@ -1,10 +1,11 @@
 const Scraper = require("youtube-search-scraper").default;
 const youtube = new Scraper();
 
-async function searchSong(songName, author, duration) {
-    let songLink = "";
+async function searchSong(songName, authorsArray, duration) {
+    let songLink = ""; 
+    let authors = authorsArray.join(" ");
 
-    await youtube.search(songName + " " + author).then(results => {
+    await youtube.search(songName + " " + authors).then(results => {
         for (let song of results.videos) {
             if (song.duration <= duration + 60000) {
                 songLink = song.link;
