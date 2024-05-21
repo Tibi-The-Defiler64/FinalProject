@@ -2,34 +2,48 @@
 
 
 function downloadFile(uri, songData) {
+    // kreiranje linka
     const link = document.createElement("a");
     link.target = "_blank";
-    link.download = songData["songName"];
+    //definiranje naziva datoteke koja se skida
+    link.download = songData["songName"]+" "+ songData["songArtists"];
+    //lokacija na koju link vodi
     link.href = uri;
+    //dodavanje linka na stranicu
     document.body.appendChild(link);
+    //aktivacija linka, automatski se radi GET zahtjev na uri
     link.click();
+    //uklanjanje linka
     document.body.removeChild(link);
     delete link;
 }
 function downloadYoutubeVideo(youtubeId, songName){
+    // kreiranje linka
     const link = document.createElement("a");
     link.target = "_blank";
+    //definiranje naziva datoteke koja se skida
     link.download = songName;
+    //lokacija na koju link vodi
     link.href = "/download/"+youtubeId;
+    //dodavanje linka na stranicu
     document.body.appendChild(link);
+    //aktivacija linka, automatski se radi GET zahtjev na uri
     link.click();
+    //uklanjanje linka
     document.body.removeChild(link);
     delete link;
 }
 
 
-
+// dohvaćanje podataka o pjesmi
 async function fetchSongData (uri) {
+    // uri = “/getName/”+trackId
     let data = await fetch(uri).then(response => response.json());
+    // data je oblika {"songName":songData.name,"songArtists":artistList,"songDuration":songData.duration_ms
     return data;
-        //downloadFile("/download/"+res,res["songName"]);
 }
 
+// objekt s regexima za prepoznavanje poveznica
 const LINK_TYPES = {
     album: {
         regex: /^https:\/\/open\.spotify\.com\/album\/(?<id>\w{22})/,
@@ -51,20 +65,20 @@ const LINK_TYPES = {
         regex: /^https:\/\/www\.youtu.be\.com\/(?<id>\w{11})/,
         endpoint: "youtubeVideo"
     }
-
 };
 
+// funkcija obrađuje unesenu poveznicu, vraća id pjesme
 const getYoutubeLinks = async (spotifyLink) => {
-    const type = Object.values(LINK_TYPES).find(({ regex }) => regex.test(spotifyLink));
+    const type = Object.values(LINK_TYPES).find(({ regex }) => regex.test(spotifyLink)); //klasificiranje tipa poveznice
     if (!type) {
         return null;
     }
-    const id = type.regex.exec(spotifyLink).groups.id;
+    const id = type.regex.exec(spotifyLink).groups.id; //ekstraktiranje id-a poveznice
     if (!id) {
         return null;
     }
-    const url =  "/" + type.endpoint + "/" + id;
-    const response = await fetch(url);
+    const uri =  "/" + type.endpoint + "/" + id; //kreiranje uri na serveru
+    const response = await fetch(uri); // get request do uri-a
     if(!response.ok){
         return null;
     }
@@ -124,34 +138,30 @@ textInput.addEventListener("input", (event)=>{
     }else{
         clearLinkBtn.style.display = "none";
     }
-
-
 });
 
 submitLinkBtn.addEventListener("click", async event => {
     event.preventDefault();
     const spotifyLink = document.getElementById("spotifyLink").value;
     getYoutubeLinks(spotifyLink).then(links => {
-        console.log(links)
-        if(links === null){
+        if(links === null){       //slučaj da je link krivi
             alert('Invalid link');
             return;
         }
         if(!Array.isArray(links)){ //slučaj kad je u pitanju youtube video
-
-            downloadYoutubeVideo(links["id"],links["name"]);
+            //pozivanje funkcije za skidanje audiozapisa YouTube videozapisa
+            downloadYoutubeVideo(links["id"],links["name"]); 
         }
         else{                   //slučaj kad je u pitanju spotify pjesma, playlista, album
            
             links.forEach(async (trackId) => {
+                //pozivanje funkcije za dohvaćanje podataka o pjesmi
                 let sngData = await fetchSongData("/getName/"+trackId);
-                let sngDataJson = JSON.stringify(sngData);
+                // pretvaranje JSON objekta u string
+                let sngDataJson = JSON.stringify(sngData); 
+                //pozivanje funkcije za skidanje pjesme sa Spotify-a
                 downloadFile(`/download/data?json=${encodeURIComponent(sngDataJson)}`,sngData)
             });
-        }
-      
-        
-        
+        }        
     });
-
 })

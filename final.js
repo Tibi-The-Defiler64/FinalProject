@@ -42,65 +42,79 @@ async function convertPlaylist(playlistId){
 }
 
 app.get("/album/:albumId", async (req, res)=>{
+    //dobivanje podataka iz uri
     const {albumId} = req.params;
-    const albumTrackIds = await convertAlbum(albumId);
+    // dobivanje liste id-eva iz albuma
+    const albumTrackIds = await getAlbumData(albumId);
+    // slanje niza klijentu
     res.json(albumTrackIds);
 });
 
 app.get("/playlist/:playlistId",async (req,res) =>{
+    //dobivanje podataka iz uri 
     const {playlistId} = req.params;
-    const playlistTrackIds = await convertPlaylist(playlistId);
+    // dobivanje liste id-eva iz playliste
+    const playlistTrackIds = await getPlaylistData(playlistId);
+    // slanje niza klijentu
     res.json(playlistTrackIds);
 });
 
-app.get("/song/:trackId",async(req, res) =>{
+app.get("/song/:trackId",async(req, res) => {
+    // dobivanje id pjesme iz resursa
     const {trackId} = req.params;
-    res.json([trackId]);
+    // stavljanje id-a pjesme u niz i slanje niza klijentu 
+    res.json([trackId]); 
 })
 
 app.get("/youtubeVideo/:youtubeId", async(req, res) => {
+    //dobivanje podataka iz uri 
     const {youtubeId} = req.params;
-    const name = await ytext.videoInfo("https://www.youtube.com/watch?v="+youtubeId);
-    res.json({"name":name["title"], "id":youtubeId})
-
+    // dobivanje podataka o videozapisu
+    const name = await ytext.videoInfo("https://www.youtube.com/watch?v="+youtubeId); 
+    res.json({"name":name["title"], "id":youtubeId}) // odgovor u obliku objekta
 });
 
+// metapodatci pjesme
 app.get("/getName/:trackId",async (req, res) => {
+    //izvlačenje id pjesme iz resursa
     const { trackId } = req.params;
+    //izvlačenje metapodataka o pjesmi
     const songData = await getSongData(trackId);
+    //kreiranje niza s izvođačima
     const artistList = [];
     songData.artists.forEach(artistData => {
         artistList.push(artistData.name);
     });
-    console.log(artistList);
+    //slanje JSON objekta s podatcima klijentu 
     res.json({"songName":songData.name,"songArtists":artistList,"songDuration":songData.duration_ms})
-    
 });
 
 
 app.get("/download/data",async (req,res) => {
- 
+    //dohvaćanje stringa iz zahtjeva
     const songData = req.query.json;
+    //parsiranje stringa u JSON objekat
     const songDataJson = JSON.parse(songData);
+    //dohvaćanje youtube poveznice na pjesmu 
     const url = await searchSong(songDataJson["songName"], songDataJson["songArtists"], songDataJson["songDuration"]);
     console.log("Download: " + url);
     console.log(songDataJson["songName"]);
     console.log(songDataJson["songArtists"]);
-    
+    //stvaranje streama pjesme 
     const stream = downloadFromYoutube(url);
+    //slanje streama klijentu
     stream.pipe(res);
 });
-
 app.get("/download/:youtubeId", async (req, res) => {
+    //dohvaćanje stringa iz zahtjeva
     const {youtubeId} = req.params;
     console.log(youtubeId);
+    //stvaranje streama pjesme 
     const stream = downloadFromYoutube("https://www.youtube.com/watch?v="+youtubeId);
+    //slanje streama klijentu
     stream.pipe(res);
-
-
 });
 
 app.listen(port);
 process.on('uncaughtException', console.error)
-
 console.log("Server started at http://localhost:" + port);

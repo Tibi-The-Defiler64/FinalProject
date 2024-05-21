@@ -26,8 +26,8 @@
             </div>
             <div id="aboutFooter">
                 <button id = "closeButton" onclick="closeAbout()"><img class ="aboutImages" src = "exitArrow.svg"></button>
-                <button id = "spotifyBtnAbout" class = "aboutLinksBtns"><img class ="aboutImages" src = "spotifyLogo.svg"></button>
-                <button id = "youtubeBtnAbout" class = "aboutLinksBtns"><img class ="aboutImages" src= "youtubeLogo.svg"></button>
+                <a href = "https://open.spotify.com/" target ="_blank"><button id = "spotifyBtnAbout" class = "aboutLinksBtns"><img class ="aboutImages" src = "spotifyLogo.svg"></button></a>
+                <a href = "https://www.youtube.com/" target ="_blank"><button id = "youtubeBtnAbout" class = "aboutLinksBtns"><img class ="aboutImages" src= "youtubeLogo.svg"></button></a>
             </div> 
         </div>
 
@@ -42,24 +42,30 @@
                             <path d="M14.4851 9.47074C14.1928 9.17728 13.7179 9.17636 13.4244 9.46868C13.131 9.76101 13.1301 10.2359 13.4224 10.5293C14.586 11.6975 14.5547 13.8087 13.1194 15.2496L8.27178 20.1161C6.83745 21.556 4.73937 21.5863 3.57791 20.4203C2.41424 19.2521 2.44559 17.1408 3.88089 15.6999L6.30473 13.2667C6.59706 12.9732 6.59614 12.4984 6.30268 12.206C6.00922 11.9137 5.53434 11.9146 5.24202 12.2081L2.81818 14.6413C0.906876 16.5601 0.666916 19.6234 2.51519 21.4789C4.36567 23.3365 7.42221 23.0944 9.33449 21.1747L14.1821 16.3082C16.0934 14.3895 16.3334 11.3262 14.4851 9.47074Z" fill="#ffffff"/>
                             </svg>
                     </div>
-                    
+                    <!-- Polje za unesti poveznicu -->
                     <input type = "text"  id = "spotifyLink" placeholder="Enter a link here:" autocomplete="off" spellcheck="false" maxlength="256" autocapitalize="none"/>
+                    <!-- Gumb za izbrisati sadržaj polja za unos -->
                     <button id="clearLink" onclick="clearInput()" style="display: none;" >x</button>
+                    <!-- Gumb za potvrditi unos polja -->
                     <button id = "submitLink" style="display: none">>></button>
                     
                 
             </div>    
             <footer id = "footer">
                 <div id = "links">
-                    <button id = "spotifyBtn">
-                        <img class = "footerImgs" src = "spotifyLogo.svg">
-                    </button>
-                    <button id = "youtubeBtn" onclick = "">
-                        <img class = "footerImgs" src="youtubeLogo.svg"> 
-                    </button>
-                    
+                    <a href = "https://open.spotify.com/" target ="_blank">
+                        <button id = "spotifyBtn">
+                            <img class = "footerImgs" src = "spotifyLogo.svg">
+                        </button>
+                    </a>
+                    <a href = "https://www.youtube.com/" target ="_blank">
+                        <button id = "youtubeBtn" onclick = "">
+                            <img class = "footerImgs" src="youtubeLogo.svg"> 
+                        </button>
+                    </a> 
+                
                     <button id = "aboutBtn" onclick ="activateAboutPopUp()">
-                        about
+                            about
                     </button>
                     
                 </div>
