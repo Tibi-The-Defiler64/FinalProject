@@ -1,4 +1,6 @@
 
+
+
 function downloadFile(uri, songData) {
     const link = document.createElement("a");
     link.target = "_blank";
@@ -9,6 +11,18 @@ function downloadFile(uri, songData) {
     document.body.removeChild(link);
     delete link;
 }
+function downloadYoutubeVideo(youtubeId, songName){
+    const link = document.createElement("a");
+    link.target = "_blank";
+    link.download = songName;
+    link.href = "/download/"+youtubeId;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    delete link;
+}
+
+
 
 async function fetchSongData (uri) {
     let data = await fetch(uri).then(response => response.json());
@@ -28,31 +42,35 @@ const LINK_TYPES = {
     playlist: {
         regex: /^https:\/\/open\.spotify\.com\/playlist\/(?<id>\w{22})/,
         endpoint: "playlist"
+    },
+    youtubeVideoV1: {
+        regex: /^https:\/\/www\.youtube\.com\/watch\?v=(?<id>\w{11})/,
+        endpoint: "youtubeVideo"
+    },
+    youtubeVideoV2: {
+        regex: /^https:\/\/www\.youtu.be\.com\/(?<id>\w{11})/,
+        endpoint: "youtubeVideo"
     }
-    
+
 };
-  
 
 const getYoutubeLinks = async (spotifyLink) => {
     const type = Object.values(LINK_TYPES).find(({ regex }) => regex.test(spotifyLink));
     if (!type) {
         return null;
     }
-
     const id = type.regex.exec(spotifyLink).groups.id;
     if (!id) {
         return null;
     }
-
     const url =  "/" + type.endpoint + "/" + id;
     const response = await fetch(url);
     if(!response.ok){
         return null;
     }
-
     return await response.json();
-  
 }
+
 const submitLinkBtn = document.getElementById("submitLink");
 const textInput = document.getElementById("spotifyLink");
 const clearLinkBtn = document.getElementById("clearLink");
@@ -114,15 +132,26 @@ submitLinkBtn.addEventListener("click", async event => {
     event.preventDefault();
     const spotifyLink = document.getElementById("spotifyLink").value;
     getYoutubeLinks(spotifyLink).then(links => {
+        console.log(links)
         if(links === null){
             alert('Invalid link');
             return;
         }
-        links.forEach(async (trackId) => {
-            let sngData = await fetchSongData("/getName/"+trackId);
-            let sngDataJson = JSON.stringify(sngData);
-            downloadFile(`/download/data?json=${encodeURIComponent(sngDataJson)}`,sngData)
-        });
+        if(!Array.isArray(links)){ //slučaj kad je u pitanju youtube video
+
+            downloadYoutubeVideo(links["id"],links["name"]);
+        }
+        else{                   //slučaj kad je u pitanju spotify pjesma, playlista, album
+           
+            links.forEach(async (trackId) => {
+                let sngData = await fetchSongData("/getName/"+trackId);
+                let sngDataJson = JSON.stringify(sngData);
+                downloadFile(`/download/data?json=${encodeURIComponent(sngDataJson)}`,sngData)
+            });
+        }
+      
+        
+        
     });
 
 })

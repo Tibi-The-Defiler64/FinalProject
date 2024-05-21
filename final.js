@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const path = require("path");
+const ytext = require("youtube-ext");
 
 const { getSongData } = require("./getSong.js");
 const { searchSong } = require("./searchSong.js");
@@ -57,6 +58,13 @@ app.get("/song/:trackId",async(req, res) =>{
     res.json([trackId]);
 })
 
+app.get("/youtubeVideo/:youtubeId", async(req, res) => {
+    const {youtubeId} = req.params;
+    const name = await ytext.videoInfo("https://www.youtube.com/watch?v="+youtubeId);
+    res.json({"name":name["title"], "id":youtubeId})
+
+});
+
 app.get("/getName/:trackId",async (req, res) => {
     const { trackId } = req.params;
     const songData = await getSongData(trackId);
@@ -71,6 +79,7 @@ app.get("/getName/:trackId",async (req, res) => {
 
 
 app.get("/download/data",async (req,res) => {
+ 
     const songData = req.query.json;
     const songDataJson = JSON.parse(songData);
     const url = await searchSong(songDataJson["songName"], songDataJson["songArtists"], songDataJson["songDuration"]);
@@ -81,6 +90,16 @@ app.get("/download/data",async (req,res) => {
     const stream = downloadFromYoutube(url);
     stream.pipe(res);
 });
+
+app.get("/download/:youtubeId", async (req, res) => {
+    const {youtubeId} = req.params;
+    console.log(youtubeId);
+    const stream = downloadFromYoutube("https://www.youtube.com/watch?v="+youtubeId);
+    stream.pipe(res);
+
+
+});
+
 app.listen(port);
 process.on('uncaughtException', console.error)
 
