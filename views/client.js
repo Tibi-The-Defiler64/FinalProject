@@ -92,13 +92,32 @@ const homePage = document.getElementById("homePage");
 const homePageElements = document.getElementById("homePage").getElementsByTagName("*");
 const aboutPopUp = document.getElementById("aboutPopUp");
 const aboutBtn = document.getElementById("aboutBtn");
-
-
+const spotifyAboutBtn = document.getElementById("spotifyBtnAbout");
+const ytAboutBtn = document.getElementById("youtubeBtnAbout");
+const ytBtn = document.getElementById("youtubeBtn");
+const spotifyBtn = document.getElementById("spotifyBtn");
 
 homePage.addEventListener("click",(event)=>{
         if(event.target !== aboutPopUp && !aboutPopUp.contains(event.target) && event.target !== aboutBtn && (aboutPopUp.style.display === "flex")) {
             closeAbout();
         }
+});
+spotifyAboutBtn.addEventListener("click",()=>{
+    const url = "https://open.spotify.com/";
+    window.open(url, "_blank");
+});
+ytAboutBtn.addEventListener("click", ()=>{
+    const url = "https://www.youtube.com/";
+    window.open(url,"_blank")
+});
+ytBtn.addEventListener("click",()=>{
+    const url = "https://www.youtube.com/";
+    window.open(url,"_blank")
+});
+
+spotifyBtn.addEventListener("click",()=>{
+    const url = "https://open.spotify.com/";
+    window.open(url, "_blank");
 });
 
 function clearInput(){
