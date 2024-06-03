@@ -214,6 +214,10 @@ body {
     transform: scale(1.1);
 }
 
+#links button:hover{
+    font-size: 1.6rem;
+}
+
 #links button:active {
     border: solid orange;
     transform: scale(0.95); 
